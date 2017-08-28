@@ -8,45 +8,29 @@ public class playerController : MonoBehaviour {
     [SerializeField]
     private float moveSpeed;
     [SerializeField]
+    private float rotateSpeed;
+    [SerializeField]
     private float slowDownSpeed;
     Rigidbody2D rigidBody;
-    private int direction; //1 = left, 2 = right, 3 = up, 4 = down
-    private bool facing;
-
+    Vector2 targetPosition;
 
 	// Use this for initialization
 	void Start () {
         rigidBody = GetComponent<Rigidbody2D>();
-        facing = true;
+        targetPosition = transform.position;
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        //flip player to face the direction they are moving
-        Flip();
+       LookAtMouse();
 
         //player movement
         if (Input.GetKey(KeyCode.W)) //move player up 
         {
-            rigidBody.velocity = new Vector2(0, moveSpeed);
-            direction = 3;
+            MovePlayer();
         }
-        if (Input.GetKey(KeyCode.S)) // move player down 
-        {
-            rigidBody.velocity = new Vector2(0, -moveSpeed);
-            direction = 4;
-        }
-        if (Input.GetKey(KeyCode.A)) //move player left 
-        {
-            rigidBody.velocity = new Vector2(-moveSpeed, 0);
-            direction = 1;
-        }
-        if (Input.GetKey(KeyCode.D)) //move player right
-        {
-            rigidBody.velocity = new Vector2(moveSpeed, 0);
-            direction = 2;
-        }
-        if (!(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A))) //stop player 
+        if (!(Input.GetKey(KeyCode.W))) //stop player 
         {
             SlowDown();
         }
@@ -56,15 +40,19 @@ public class playerController : MonoBehaviour {
     {
         rigidBody.velocity = new Vector2((rigidBody.velocity.x * slowDownSpeed),(rigidBody.velocity.y * slowDownSpeed));
     }
-    void Flip()
+
+    //player looks towards mouse at all times 
+    private void LookAtMouse()
     {
-        if (direction == 1 && ! facing || direction == 2 && facing) // need to flip the way the chracter is facing 
-        {
-            facing = !facing;
-            //flip player using localScale
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
-        }
+        Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+        float rotateAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion rotation = Quaternion.AngleAxis(rotateAngle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotateSpeed * Time.deltaTime);
+    }
+
+    private void MovePlayer() //move player forward towards the mouse 
+    {
+       
+        transform.position = Vector2.MoveTowards(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition), moveSpeed * Time.deltaTime);
     }
 }
