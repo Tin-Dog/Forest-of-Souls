@@ -13,19 +13,19 @@ public class playerController : MonoBehaviour {
     private float slowDownSpeed;
     Rigidbody2D rigidBody;
     Vector2 targetPosition;
+    Vector3 facing;
 
 	// Use this for initialization
 	void Start () {
         rigidBody = GetComponent<Rigidbody2D>();
         targetPosition = transform.position;
-
 	}
 	
 	// Update is called once per frame
 	void Update () {
-       LookAtMouse();
 
-        //player movement
+        //player movement and facing direction
+        LookAtMouse();  
         if (Input.GetKey(KeyCode.W)) //move player up 
         {
             MovePlayer();
@@ -46,13 +46,12 @@ public class playerController : MonoBehaviour {
     {
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         float rotateAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        Quaternion rotation = Quaternion.AngleAxis(rotateAngle, Vector3.forward);
+        Quaternion rotation = Quaternion.AngleAxis(rotateAngle, Vector3.forward); //problem here .forward is the red axis, not the green
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, rotateSpeed * Time.deltaTime);
     }
 
     private void MovePlayer() //move player forward towards the mouse 
-    {
-       
+    { 
         transform.position = Vector2.MoveTowards(transform.position, Camera.main.ScreenToWorldPoint(Input.mousePosition), moveSpeed * Time.deltaTime);
     }
 }
