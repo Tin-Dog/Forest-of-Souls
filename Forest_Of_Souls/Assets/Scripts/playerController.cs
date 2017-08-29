@@ -25,7 +25,7 @@ public class playerController : MonoBehaviour {
 	void Update () {
 
         //player movement and facing direction
-        LookAtMouse();  
+       // LookAtMouse();  
         if (Input.GetKey(KeyCode.W)) //move player up 
         {
             MovePlayer();
